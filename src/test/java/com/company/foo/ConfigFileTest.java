@@ -20,12 +20,12 @@ class ConfigFileTest {
 
     @Test
     void getName() {
-        assertEquals(c.getName(), "myfile");
+        assertEquals(c.getName(), "myfile;");
     }
 
     @Test
     void getContents() {
-        assertEquals(c.getContents(), "abcd1234");
+        assertEquals(c.getContents(), "abcd123");
     }
 
     @Test
