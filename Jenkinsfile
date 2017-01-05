@@ -2,9 +2,6 @@ node {
 
 	stage 'compile'
 
-	// pull code
-	// ?
-
 	checkout scm
 
 	docker.image('maven:latest').inside {
@@ -38,8 +35,12 @@ node {
 
 	myimage.withRun('-v $(pwd):/data -e APP_CONFIG_PATH=/data -p 8082:8080'){
 
+		retry(3){
+
 		httpRequest requestBody: 'foo=bar', url: 'http://localhost:8082/app/configview.jsp?name=test.properties'
 
+		sleep 2
+}
 	}
 
 
