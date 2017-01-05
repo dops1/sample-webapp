@@ -20,7 +20,7 @@ class ConfigFileTest {
 
     @Test
     void getName() {
-        assertEquals(c.getName(), "myfile;");
+        assertEquals(c.getName(), "myfile");
     }
 
     @Test
@@ -36,7 +36,7 @@ class ConfigFileTest {
 
     @Test
     void testToString() {
-        assertEquals(c.toString(), c.getName());
+        assertEquals(c.toString(), c.getName() + ";");
     }
 
 }
