@@ -1,53 +1,42 @@
+#!/usr/bin/env groovy
+
+def appName = "sample-webapp"
+def appVersion = env.BUILD_NUMBER
+def dockerTag = "${appName}-${appVersion}"
+
 node {
 
-	stage 'compile'
+    docker.image('maven:latest').inside {
+        checkout scm
 
-	checkout scm
+        writeFile file: "src/main/java/webapp/.version", text: dockerTag
 
-	docker.image('maven:latest').inside {
-		sh 'mvn clean compile'
+        stage 'Unit Test'
+        sh 'mvn surefire:test'
 
-		stage 'test'
+        stage 'Package'
+        sh 'mvn package -Dmaven.test.skip=true'
+    }
 
-		sh 'mvn clean test'
-
-
-		stage 'docker build'
-
-		sh 'mvn clean package'
-
-	}
+    stage 'Build Image'
+    def appImage = docker.build(dockerTag)
 
 
+    stage 'Test image'
 
-	// Produces: target/*.war
+    writeFile file: "testData.properties", text: """
+prop1=value1
+test=foo
+"""
+    appImage.withRun("-e 'APP_CONFIG_PATH=/data' -v ${pwd()}:/data -p 8082:8080") {
+        sleep 3
+        httpRequest url: 'http://localhost:8082/app/config.jsp', validResponseCodes: '200', validResponseContent: 'testData.properties'
+    }
 
-
-	def myimage = docker.build 'webapp'
-
-
-	stage 'integration tests'
-
-	// create a test .properties file
-	writeFile file: 'test.properties', text: 'foo=bar'
-
-	// run the image
-
-	myimage.withRun('-v $(pwd):/data -e APP_CONFIG_PATH=/data -p 8082:8080'){
-
-		retry(3){
-
-		httpRequest requestBody: 'foo=bar', url: 'http://localhost:8082/app/configview.jsp?name=test.properties'
-
-		sleep 2
-}
-	}
-
-
-	// generate test.properties file
-
-	// somehow test that http://localhost:PORT/app/...... returns the contents of the file
-
-
-	// done
+    // TODO
+    // push the image
+    // deploy it to a CI environment
+    // test the deployment succeeded
+    // send notification to Slack
+    // capture the test report from the junit tests
 }
