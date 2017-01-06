@@ -12,6 +12,7 @@ node {
 		stage 'test'
 		sh 'mvn clean test'
 		// archive junit results
+		junit "target/surefire-reports/*.xml"
 
 		stage 'assemble war'
 		sh 'mvn clean package -DskipTests'
