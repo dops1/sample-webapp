@@ -28,6 +28,8 @@ node {
 	// run the image
 	myimage.withRun('-v $(pwd):/data -e APP_CONFIG_PATH=/data -p 8082:8080'){
 
+        sleep 5
+        
 		httpRequest requestBody: 'foo=bar', url: 'http://localhost:8082/app/configview.jsp?name=test.properties'
 
 	}
