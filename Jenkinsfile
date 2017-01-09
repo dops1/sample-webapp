@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-node('slave2') {
+node {
 
 
 	docker.image('maven:latest').inside {
@@ -12,7 +12,6 @@ node('slave2') {
 		stage 'test'
 		sh 'mvn clean test'
 		// archive junit results
-                archiveArtifacts 'target/surefire-reports/*'
 
 		stage 'assemble war'
 		sh 'mvn clean package -DskipTests'
@@ -31,7 +30,7 @@ node('slave2') {
 
         sleep 5
 
-		httpRequest requestBody: 'foo=bar', url: 'http://10.209.20.77:8082/app/configview.jsp?name=test.properties'
+		httpRequest requestBody: 'foo=bar', url: 'http://localhost:8082/app/configview.jsp?name=test.properties'
 
 	}
 
